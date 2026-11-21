@@ -1,0 +1,51 @@
+name: build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Show toolchain
+        shell: pwsh
+        run: |
+          $PSVersionTable.PSVersion.ToString()
+          Get-Item "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe" | Select-Object FullName, Length
+
+      - name: Build (zero-SDK .NET Framework csc)
+        shell: pwsh
+        run: |
+          pwsh -NoProfile -File ./build.ps1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Smoke test (CLI help, no DDC needed)
+        shell: pwsh
+        run: |
+          ./dist/monitorctl.exe help
+          if ($LASTEXITCODE -ne 0) { throw "monitorctl.exe help exited $LASTEXITCODE" }
+
+      - name: Write SHA-256
+        shell: pwsh
+        run: |
+          $hash = (Get-FileHash dist/monitorctl.exe -Algorithm SHA256).Hash.ToLower()
+          "$hash  monitorctl.exe" | Set-Content -Path dist/monitorctl.exe.sha256 -Encoding ascii
+          Get-Content dist/monitorctl.exe.sha256
+          Get-Item dist/monitorctl.exe | Select-Object Name, Length
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: monitorctl-exe
+          path: |
+            dist/monitorctl.exe
+            dist/monitorctl.exe.sha256
+          if-no-files-found: error

@@ -1,0 +1,16 @@
+# 统一换行，避免跨平台 diff 噪音
+* text=auto
+
+# 源码与脚本按 Windows 习惯检出（csc / PowerShell 都在 Windows 上用）
+*.cs  text eol=crlf
+*.ps1 text eol=crlf
+
+# CI 与文档用 LF
+*.yml text eol=lf
+*.yaml text eol=lf
+*.md  text eol=lf
+
+# 二进制
+*.exe binary
+*.png binary
+*.ico binary

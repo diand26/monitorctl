@@ -1,0 +1,21 @@
+# 构建产物（应放 Release 资产，不进源码树）
+dist/
+obj/
+bin/
+*.exe
+*.pdb
+*.dll
+
+# 本机配置与日志（可能含真实访问 key / 内网信息）
+monitorctl.ini
+*.ini
+log*.txt
+*.log
+
+# 编辑器 / 系统
+.vs/
+.vscode/
+*.user
+*.suo
+Thumbs.db
+desktop.ini
